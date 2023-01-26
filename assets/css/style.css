@@ -10,8 +10,8 @@
     --hue-color: 250;
 
     /*HSL Color mode*/
-    --first-color: hsl(var(--hue-color), 69%, 61%);
-    --first-color-second: hsl(var(--hue-color), 69%, 61%);
+    --first-color: hsl(var(--hue-color), 69%, 53%);
+    --first-color-second: hsl(var(--hue-color), 69%, 53%);
     --first-color-alt: hsl(var(--hue-color), 57%, 53%);
     --first-color-lighter: hsl(var(--hue-color), 92%, 85%);
     --title-color: hsl(var(--hue-color), 8%, 15%);
@@ -94,6 +94,7 @@ body.dark-theme{
 
 .change-theme:hover{
     color: var(--first-color);
+    cursor: pointer;
 }
 
 /*BASE*/
@@ -292,7 +293,7 @@ img {
 }
 
 .home__social-icon:hover {
-    color: var(--first-color-alt);
+    color: var(--first-color-lighter);
 }
 
 .home__blob {
@@ -301,7 +302,7 @@ img {
 }
 
 .home__blob-img {
-    width: 435px;
+    width: 250px;
 }
 
 .home__data {
