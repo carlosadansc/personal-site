@@ -189,8 +189,9 @@ img {
 
 .nav__logo,
 .nav_toggle {
-    color: var(--title-color);
-    font-weight: var(--font-medium);
+    color: var(--first-color);
+    font-size: var(--h1-font-size);
+    font-weight: var(--font-semi-bold);
 }
 
 .nav__logo:hover {
