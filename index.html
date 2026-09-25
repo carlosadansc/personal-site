@@ -55,7 +55,7 @@
             <p class="hero__intro" data-i18n="hero.intro">I build APIs, web apps, and practical digital products for teams and people with something to ship.</p>
 
             <div class="hero__actions" aria-label="Primary actions">
-                <a class="button button--accent" href="mailto:charliecesena.94@gmail.com"><i class="site-icon site-icon--action hgi hgi-stroke hgi-rounded hgi-mail-01" aria-hidden="true"></i><span data-i18n="actions.email">Send email</span></a>
+                <a class="button button--accent" href="mailto:hello@casc.dev"><i class="site-icon site-icon--action hgi hgi-stroke hgi-rounded hgi-mail-01" aria-hidden="true"></i><span data-i18n="actions.email">Send email</span></a>
                 <a class="button button--quiet" href="assets/pdf/carlos-sanchez-cv.pdf" target="_blank" rel="noreferrer"><i class="site-icon site-icon--action hgi hgi-stroke hgi-rounded hgi-doc-02" aria-hidden="true"></i><span data-i18n="actions.cv">View CV</span></a>
             </div>
         </section>
@@ -160,10 +160,39 @@
                 <h2 id="contact-title" data-i18n="contact.title">Get in touch</h2>
                 <p data-i18n="contact.intro">If you have a project, question, or good problem to solve, send me a note.</p>
             </div>
+            <form class="contact-form" data-contact-form data-endpoint="https://api.casc.dev/contact" aria-describedby="contact-form-status">
+                <div class="contact-form__field">
+                    <label for="contact-name" data-i18n="contact.form.name">Name</label>
+                    <input id="contact-name" name="name" type="text" autocomplete="name" maxlength="80" required>
+                </div>
+                <div class="contact-form__field">
+                    <label for="contact-email" data-i18n="contact.form.email">Email</label>
+                    <input id="contact-email" name="email" type="email" autocomplete="email" maxlength="254" required>
+                </div>
+                <div class="contact-form__field contact-form__field--full">
+                    <label for="contact-message" data-i18n="contact.form.message">Message</label>
+                    <textarea id="contact-message" name="message" minlength="10" maxlength="5000" rows="6" required></textarea>
+                </div>
+                <div class="contact-form__captcha">
+                    <p class="contact-form__captcha-label" id="contact-captcha-label" data-i18n="contact.form.captchaPrompt">Complete the quick security check below before sending.</p>
+                    <div class="contact-form__captcha-widget" data-turnstile-widget data-sitekey="0x4AAAAAAFDkf2nJVgc0rBR4" role="group" aria-labelledby="contact-captcha-label" tabindex="-1"></div>
+                </div>
+                <div class="contact-form__trap" aria-hidden="true">
+                    <label for="contact-website">Leave this field empty</label>
+                    <input id="contact-website" name="website" type="text" tabindex="-1" autocomplete="off">
+                </div>
+                <div class="contact-form__footer">
+                    <p class="contact-form__status" id="contact-form-status" data-contact-status data-state="hint" data-i18n="contact.form.hint" role="status" aria-live="polite">This form sends your message directly to my inbox.</p>
+                    <button class="button button--accent contact-form__submit" type="submit" data-contact-submit disabled>
+                        <i class="site-icon site-icon--action hgi hgi-stroke hgi-rounded hgi-mail-01" aria-hidden="true"></i>
+                        <span data-contact-submit-label data-i18n="contact.form.send">Send message</span>
+                    </button>
+                </div>
+            </form>
             <div class="contact-links">
-                <a class="contact-link" href="mailto:charliecesena.94@gmail.com">
+                <a class="contact-link" href="mailto:hello@casc.dev">
                     <span class="contact-link__label"><i class="site-icon site-icon--label hgi hgi-stroke hgi-rounded hgi-mail-01" aria-hidden="true"></i><span data-i18n="contact.email">Email</span></span>
-                    <span class="contact-link__value">charliecesena.94@gmail.com</span>
+                    <span class="contact-link__value">hello@casc.dev</span>
                 </a>
                 <div class="contact-link">
                     <span class="contact-link__label"><i class="site-icon site-icon--label hgi hgi-stroke hgi-rounded hgi-location-01" aria-hidden="true"></i><span data-i18n="contact.location">Location</span></span>

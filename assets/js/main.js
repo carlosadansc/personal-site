@@ -62,7 +62,26 @@ const translations = {
             title: 'Get in touch',
             intro: 'If you have a project, question, or good problem to solve, send me a note.',
             email: 'Email',
-            location: 'Location'
+            location: 'Location',
+            form: {
+                name: 'Name',
+                email: 'Email',
+                message: 'Message',
+                captchaPrompt: 'Complete the quick security check below before sending.',
+                captchaLoading: 'Loading the security check…',
+                captchaSetup: 'The security check is not configured yet. Please email me directly.',
+                captchaRequired: 'Complete the security check before sending.',
+                captchaFailed: 'The security check expired or could not be verified. Please try again.',
+                captchaExpired: 'The security check expired. Please complete it again.',
+                captchaUnavailable: 'The security check is temporarily unavailable. Please email me directly.',
+                send: 'Send message',
+                sending: 'Sending…',
+                hint: 'This form sends your message directly to my inbox.',
+                success: 'Message sent. Thanks for reaching out!',
+                error: 'Could not send your message. Please try again or email me directly.',
+                invalid: 'Check the fields and try again.',
+                rateLimited: 'Too many attempts. Please wait a few minutes and try again.'
+            }
         },
         footer: {
             built: 'Built with care.'
@@ -131,7 +150,26 @@ const translations = {
             title: 'Hablemos',
             intro: 'Si tienes un proyecto, una pregunta o un buen problema por resolver, escríbeme.',
             email: 'Correo',
-            location: 'Ubicación'
+            location: 'Ubicación',
+            form: {
+                name: 'Nombre',
+                email: 'Correo electrónico',
+                message: 'Mensaje',
+                captchaPrompt: 'Completa la verificación de seguridad para enviar el mensaje.',
+                captchaLoading: 'Cargando la verificación de seguridad…',
+                captchaSetup: 'La verificación aún no está configurada. Escríbeme directamente por correo.',
+                captchaRequired: 'Completa la verificación de seguridad antes de enviar.',
+                captchaFailed: 'La verificación venció o no se pudo validar. Inténtalo de nuevo.',
+                captchaExpired: 'La verificación venció. Complétala de nuevo.',
+                captchaUnavailable: 'La verificación no está disponible por el momento. Escríbeme por correo.',
+                send: 'Enviar mensaje',
+                sending: 'Enviando…',
+                hint: 'El mensaje se envía directamente a mi correo.',
+                success: 'Mensaje enviado. ¡Gracias por escribirme!',
+                error: 'No se pudo enviar. Inténtalo de nuevo o escríbeme directamente por correo.',
+                invalid: 'Revisa los campos e inténtalo de nuevo.',
+                rateLimited: 'Demasiados intentos. Espera unos minutos y vuelve a intentarlo.'
+            }
         },
         footer: {
             built: 'Hecho con cuidado.'
@@ -145,16 +183,26 @@ const themeIcon = document.querySelector('[data-theme-icon]')
 const languageLabel = document.querySelector('[data-language-label]')
 const languageButtons = document.querySelectorAll('[data-language]')
 const yearLabel = document.querySelector('[data-year]')
+const contactForm = document.querySelector('[data-contact-form]')
+const contactStatus = document.querySelector('[data-contact-status]')
+const contactSubmit = document.querySelector('[data-contact-submit]')
+const contactSubmitLabel = document.querySelector('[data-contact-submit-label]')
 const storedLanguage = window.localStorage.getItem('carlos-language')
 const storedTheme = window.localStorage.getItem('carlos-theme')
 let currentLanguage = storedLanguage === 'es' ? 'es' : 'en'
 let currentTheme = storedTheme === 'dark' ? 'dark' : 'light'
+const turnstileWidget = document.querySelector('[data-turnstile-widget]')
+let turnstileWidgetId = null
+let turnstileGeneration = 0
+let turnstileToken = ''
+let isContactSubmitting = false
 
 function getCopy(key) {
     return key.split('.').reduce((copy, part) => copy && copy[part], translations[currentLanguage])
 }
 
 function setTheme(theme) {
+    const previousTheme = currentTheme
     const isDark = theme === 'dark'
     currentTheme = isDark ? 'dark' : 'light'
     document.body.dataset.theme = currentTheme
@@ -162,9 +210,11 @@ function setTheme(theme) {
     themeIcon.classList.toggle('hgi-sun-03', isDark)
     themeToggle.setAttribute('aria-label', isDark ? getCopy('theme.switchToLight') : getCopy('theme.switchToDark'))
     themeLabel.textContent = isDark ? getCopy('theme.light') : getCopy('theme.dark')
+    if (previousTheme !== currentTheme && turnstileWidgetId !== null) renderTurnstile()
 }
 
 function applyLanguage(language) {
+    const previousLanguage = currentLanguage
     currentLanguage = translations[language] ? language : 'en'
     document.documentElement.lang = currentLanguage
     document.title = getCopy('meta.title')
@@ -185,6 +235,7 @@ function applyLanguage(language) {
     })
 
     setTheme(currentTheme)
+    if (previousLanguage !== currentLanguage && turnstileWidgetId !== null) renderTurnstile()
     window.localStorage.setItem('carlos-language', currentLanguage)
 }
 
@@ -197,5 +248,139 @@ languageButtons.forEach((button) => {
     button.addEventListener('click', () => applyLanguage(button.dataset.language))
 })
 
+function setContactStatus(key, state) {
+    contactStatus.dataset.i18n = `contact.form.${key}`
+    contactStatus.dataset.state = state
+    contactStatus.textContent = getCopy(contactStatus.dataset.i18n)
+}
+
+function renderTurnstile() {
+    if (!window.turnstile || !turnstileWidget) return
+    const generation = ++turnstileGeneration
+    if (turnstileWidgetId !== null) window.turnstile.remove(turnstileWidgetId)
+
+    turnstileToken = ''
+    contactSubmit.disabled = true
+    turnstileWidgetId = window.turnstile.render(turnstileWidget, {
+        sitekey: turnstileWidget.dataset.sitekey,
+        action: 'contact',
+        theme: currentTheme,
+        language: currentLanguage,
+        size: 'flexible',
+        callback: (token) => {
+            if (generation !== turnstileGeneration) return
+            turnstileToken = token
+            contactSubmit.disabled = isContactSubmitting
+            if (!isContactSubmitting && ['captchaLoading', 'captchaExpired', 'captchaFailed', 'captchaRequired', 'captchaUnavailable'].includes(contactStatus.dataset.i18n.split('.').at(-1))) {
+                setContactStatus('hint', 'hint')
+            }
+        },
+        'expired-callback': () => {
+            if (generation !== turnstileGeneration) return
+            turnstileToken = ''
+            contactSubmit.disabled = true
+            setContactStatus('captchaExpired', 'error')
+        },
+        'error-callback': () => {
+            if (generation !== turnstileGeneration) return
+            turnstileToken = ''
+            contactSubmit.disabled = true
+            setContactStatus('captchaUnavailable', 'error')
+        },
+        'unsupported-callback': () => {
+            if (generation !== turnstileGeneration) return
+            turnstileToken = ''
+            contactSubmit.disabled = true
+            setContactStatus('captchaUnavailable', 'error')
+        }
+    })
+}
+
+function loadTurnstile() {
+    const sitekey = turnstileWidget?.dataset.sitekey?.trim()
+    if (!sitekey || sitekey === 'YOUR_TURNSTILE_SITE_KEY') {
+        setContactStatus('captchaSetup', 'error')
+        contactSubmit.disabled = true
+        return
+    }
+
+    setContactStatus('captchaLoading', 'pending')
+    window.onTurnstileLoaded = renderTurnstile
+    const script = document.createElement('script')
+    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoaded&render=explicit'
+    script.async = true
+    script.defer = true
+    script.onerror = () => {
+        contactSubmit.disabled = true
+        setContactStatus('captchaUnavailable', 'error')
+    }
+    document.head.append(script)
+}
+
+contactForm.addEventListener('submit', async (event) => {
+    event.preventDefault()
+
+    if (isContactSubmitting) return
+    if (!contactForm.reportValidity()) return
+    if (!turnstileToken) {
+        setContactStatus('captchaRequired', 'error')
+        turnstileWidget?.focus()
+        return
+    }
+
+    const formData = new FormData(contactForm)
+    const payload = Object.fromEntries(formData.entries())
+    payload.turnstileToken = turnstileToken
+    const endpoint = contactForm.dataset.endpoint
+
+    isContactSubmitting = true
+    contactSubmit.disabled = true
+    contactForm.setAttribute('aria-busy', 'true')
+    contactSubmitLabel.dataset.i18n = 'contact.form.sending'
+    contactSubmitLabel.textContent = getCopy(contactSubmitLabel.dataset.i18n)
+    setContactStatus('sending', 'pending')
+
+    try {
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            credentials: 'omit',
+            redirect: 'error'
+        })
+
+        if (response.status === 429) {
+            setContactStatus('rateLimited', 'error')
+            return
+        }
+
+        if (response.status === 400) {
+            setContactStatus('invalid', 'error')
+            return
+        }
+
+        if (response.status === 422) {
+            setContactStatus('captchaFailed', 'error')
+            return
+        }
+
+        if (!response.ok) throw new Error('contact_delivery_failed')
+
+        contactForm.reset()
+        setContactStatus('success', 'success')
+    } catch {
+        setContactStatus('error', 'error')
+    } finally {
+        isContactSubmitting = false
+        contactForm.removeAttribute('aria-busy')
+        contactSubmitLabel.dataset.i18n = 'contact.form.send'
+        contactSubmitLabel.textContent = getCopy(contactSubmitLabel.dataset.i18n)
+        turnstileToken = ''
+        contactSubmit.disabled = true
+        if (window.turnstile && turnstileWidgetId !== null) window.turnstile.reset(turnstileWidgetId)
+    }
+})
+
 yearLabel.textContent = new Date().getFullYear()
 applyLanguage(currentLanguage)
+loadTurnstile()
