@@ -266,7 +266,7 @@ function renderTurnstile() {
         action: 'contact',
         theme: currentTheme,
         language: currentLanguage,
-        size: 'flexible',
+        size: window.matchMedia('(max-width: 340px)').matches ? 'compact' : 'normal',
         callback: (token) => {
             if (generation !== turnstileGeneration) return
             turnstileToken = token

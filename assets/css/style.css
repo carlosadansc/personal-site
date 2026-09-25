@@ -601,8 +601,10 @@ body[data-theme="dark"] .project-card:focus-visible {
 }
 
 .contact-form__captcha-widget {
+    width: 300px;
     min-height: 65px;
     max-width: 100%;
+    justify-self: start;
 }
 
 .contact-form__captcha-widget:focus-visible {
