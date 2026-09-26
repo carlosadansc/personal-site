@@ -7,7 +7,7 @@
     --line: #e5e0da;
     --accent: #e85c12;
     --accent-soft: #fff0e7;
-    --accent-strong: #c84808;
+    --accent-strong: #bd4208;
     --shadow: 0 16px 38px rgb(29 25 21 / 0.06);
     --radius: 11px;
     --shell: 760px;
@@ -416,6 +416,21 @@ body[data-theme="dark"] .project-card:focus-visible {
     border: 1px solid var(--line);
     border-radius: 8px;
     object-fit: cover;
+}
+
+.project-card__mark {
+    display: grid;
+    place-items: center;
+    width: 54px;
+    height: 54px;
+    flex: 0 0 54px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--accent-soft);
+    color: var(--accent-strong);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: -0.04em;
 }
 
 .project-card__body {
@@ -837,6 +852,12 @@ a.contact-link:hover {
     }
 
     .project-card > img {
+        width: 48px;
+        height: 48px;
+        flex-basis: 48px;
+    }
+
+    .project-card__mark {
         width: 48px;
         height: 48px;
         flex-basis: 48px;
